@@ -1,26 +1,19 @@
-from modelLoad import load_model, query_model
-from openai import OpenAI
+from modelLoad import create_chain
+from stt import real_time_speech_to_text
 
-# Example Usage
-index, metadata = load_model()
-model = 'gpt-3.5-turbo'
-client = OpenAI()
 
-completion = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {
-            "role": "user",
-            "content": "Write a haiku about recursion in programming."
-        }
-    ]
-)
+def main():
+    qa_chain = create_chain()
 
-print(completion.choices[0].message)
+    print("Chatbot ready! Ask me anything about our cars.")
+    while True:
+        #query = input("Customer: ")
+        query = real_time_speech_to_text()
+        print(f'Customer: {query}')
+        if query.lower() in ["exit", "quit"]:
+            print("Goodbye!")
+            break
+        response = qa_chain.invoke({"question": query})
+        print(f"Car salesman: {response['answer']}")
 
-while(results != "exit"):
-    user_query= input("What can I help you with: ")
-    results = query_model(user_query, index, metadata)
-    for result in results:
-        print(result)
+main()

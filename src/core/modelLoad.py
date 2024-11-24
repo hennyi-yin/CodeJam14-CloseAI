@@ -1,35 +1,47 @@
-import faiss
-from sentence_transformers import SentenceTransformer
-import json
+from langchain.chains import RetrievalQA
+from langchain_community.vectorstores import FAISS
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
+from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 
-# Load the FAISS index and metadata
-def load_model():
-    print("Loading FAISS index and metadata...")
-    index = faiss.read_index("car_features_index.faiss")
-    with open("car_metadata.json", "r") as f:
-        metadata = json.load(f)
-    print("Model loaded successfully.")
-    return index, metadata
 
-# Query the loaded model
-def query_model(user_query, index, metadata, top_k=5):
-    # Encode the user query
-    query_embedding = embedding_model.encode(user_query).astype('float32').reshape(1, -1)
+def create_chain():
 
-    # Search the FAISS index
-    distances, indices = index.search(query_embedding, top_k)
+    # Load the pre-trained vector store
+    vectorstore = FAISS.load_local(
+        "car_vectorstore", 
+        embeddings=OpenAIEmbeddings(),
+        allow_dangerous_deserialization=True
+        )
 
-    # Retrieve corresponding metadata
-    results = [metadata[i] for i in indices[0] if i < len(metadata)]
-    return results
+    # Create a retriever and QA chain
+    retriever = vectorstore.as_retriever()
 
-# Example Usage
-index, metadata = load_model()
-results = ""
-while(results != "exit"):
-    user_query= input("What can I help you with: ")
-    results = query_model(user_query, index, metadata)
-    for result in results:
-        print(result)
+    memory = ConversationBufferMemory(
+        memory_key="chat_history", 
+        return_messages=True
+        )
+
+    qa_chain = ConversationalRetrievalChain.from_llm(
+        ChatOpenAI(), 
+        retriever=retriever, 
+        memory=memory, 
+    )
+
+    return qa_chain
+
+
+
+if __name__ == "__main__":
+    print("Chatbot ready! Ask me anything about our cars.")
+    qa_chain = create_chain()
+    while True:
+        query = input("Customer: ")
+        if query.lower() in ["exit", "quit"]:
+            print("Goodbye!")
+            break
+        response = qa_chain.invoke({"question": query})
+        print(f"Car salesman: {response['answer']}")
+
