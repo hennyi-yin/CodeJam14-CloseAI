@@ -11,10 +11,10 @@ class ChatItem(ft.Row):
             self.controls = [
                 ft.Container(
                     content=ft.Markdown(message, selectable=True, md_style_sheet=mks), 
-                    bgcolor=ft.colors.GREEN_ACCENT_700,
+                    bgcolor=ft.colors.SURFACE_VARIANT,
                     alignment=ft.Alignment(x=1, y=0),
                     padding=ft.Padding(top=5, bottom=5, left=10, right=10),
-                    border_radius=10,
+                    border_radius=12,
                     expand_loose=True
                 ),
                 ft.CircleAvatar(
@@ -34,7 +34,7 @@ class ChatItem(ft.Row):
                 ),
                 ft.Container(
                     content=ft.Markdown(message, selectable=True, md_style_sheet=mks), 
-                    bgcolor=ft.colors.SURFACE_VARIANT,
+#                    bgcolor=ft.colors.SURFACE_VARIANT,
                     padding=ft.Padding(top=5, bottom=5, left=10, right=10),
                     border_radius=10,
                     expand_loose=True

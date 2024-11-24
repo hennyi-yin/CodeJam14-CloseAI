@@ -1,4 +1,5 @@
 import flet as ft
+from flet_contrib.color_picker import ColorPicker
 import time
 
 from src.ui.widgets import ChatItem
@@ -21,6 +22,8 @@ def get_bot_response(user_message):
 
 def main(page: ft.Page):
     page.title = "Chatbot"
+    page.theme = ft.Theme(color_scheme_seed="#f14eff")
+    page.theme_mode = "dark" if user_config.get("dark_mode") else "light"
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.window.min_height = 600
     page.window.min_width = 400
@@ -33,13 +36,19 @@ def main(page: ft.Page):
 #    debug_button = ft.IconButton(
 #        icon=ft.icons.WARNING
 #    )
+    palette_button = ft.IconButton(
+        icon=ft.icons.PALETTE
+    )
+
     app_bar = ft.AppBar(
         title=ft.Text("Chatbot"),
         center_title=True,
         actions=[
+            palette_button,
             toggle_button,
 #            debug_button
         ],
+        bgcolor=ft.colors.ON_PRIMARY
     )
     
     chat_box = ft.ListView(expand=8)
@@ -83,6 +92,40 @@ def main(page: ft.Page):
         
     toggle_button.on_click = toggle_mode
     
+    def change_palette(hex_value):
+        page.theme = ft.Theme(color_scheme_seed=hex_value)
+        page.update()
+        
+    def open_palette_dialog(e):
+        color_picker = ColorPicker(color=page.theme.color_scheme_seed)
+        color_dialog = ft.AlertDialog()
+        
+        def close_dialog(e):
+            page.close(color_dialog)
+            page.update()
+            
+        def confirm_change(e):
+            change_palette(color_picker.color)
+            close_dialog(e)
+            
+        color_dialog.modal = True
+        color_dialog.content = color_picker
+        color_dialog.actions = [
+                ft.ElevatedButton(
+                    text="Cancel",
+                    on_click=close_dialog
+                ),
+            ft.ElevatedButton(
+                    text="Confirm",
+                    on_click=confirm_change
+                )
+        ]
+        
+        page.open(color_dialog)
+        page.update()
+    
+    palette_button.on_click = open_palette_dialog
+    
     def check_content(e):
         if not user_input.value:
             send_button.disabled = True
@@ -117,16 +160,5 @@ def main(page: ft.Page):
     
     page.appbar = app_bar
     page.add(app_body)
-#ft.Rive(
-#        src="vehicles.riv",
-#        placeholder=ft.ProgressBar(),
-#        width=300,
-#        height=200,
-#    ),ft.Lottie(
-#        src="test-white.json",
-#        repeat=True,
-#        animate=True,
-#        height=300,
-#        width=300
-#    )
+    
 ft.app(target=main)
