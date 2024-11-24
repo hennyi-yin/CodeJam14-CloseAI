@@ -9,4 +9,4 @@ def get_bot_response(user_message=None):
         
     response = assistant.get_completion(user_message)
     
-    return response
+    return user_message, response
