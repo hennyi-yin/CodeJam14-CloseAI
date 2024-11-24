@@ -1,99 +1,153 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QLabel, QVBoxLayout, QLineEdit,
-    QTextEdit, QPushButton, QWidget, QHBoxLayout
+    QApplication, QMainWindow, QTextEdit, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QWidget
 )
-from PyQt5.QtGui import QFont, QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont,QColor
 
-# Placeholder for the RAG logic
-def query_rag_system(user_query):
-    # Replace with the actual RAG logic
-    return f"Fancy simulated response for query: {user_query}"
-
-class FancyRAGApp(QMainWindow):
+class ChatBotUI(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("RAG Application - Fancy Dracula Theme")
-        self.setGeometry(100, 100, 900, 600)
-        self.setWindowIcon(QIcon("icon.png"))  # Add a fancy icon here
+        self.setWindowTitle("ChatBot with Bot Emoji")
+        self.setGeometry(100, 100, 1400, 1000)
 
         # Central Widget
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
 
-        # Layouts
-        layout = QVBoxLayout()
+        # Main Layout
+        self.main_layout = QVBoxLayout(self.central_widget)
+        self.main_layout.setContentsMargins(10, 10, 10, 10)
 
-        # Title Label
-        title_label = QLabel("🚗 Fancy RAG Car Query System")
-        title_label.setFont(QFont("Roboto", 18, QFont.Bold))
-        title_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title_label)
+        # Set Gradient Background for Main Window
+        self.setStyleSheet(
+            """
+            QMainWindow {
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #6a11cb, stop: 1 #2575fc
+                );
+            }
+            """
+        )
 
-        # Input Section
-        input_layout = QVBoxLayout()
-        self.input_label = QLabel("Enter your query:")
-        self.input_label.setFont(QFont("Roboto", 12))
-        input_layout.addWidget(self.input_label)
+        # Chat Area
+        self.chat_area = QTextEdit()
+        self.chat_area.setReadOnly(True)
+        self.chat_area.setFont(QFont("Arial", 12))
+        self.chat_area.setStyleSheet(
+            """
+            QTextEdit {
+                background-color: rgba(255, 255, 255, 0.8);
+                border: 5px solid #ffffff;  /* Thicker border */
+                border-radius: 10px;
+                padding: 10px;
+                color: #333333;
+            }
+            """
+        )
+        self.main_layout.addWidget(self.chat_area)
 
-        self.input_field = QLineEdit()
-        self.input_field.setPlaceholderText("Type your query here...")
-        input_layout.addWidget(self.input_field)
+        # Input Layout
+        self.input_layout = QHBoxLayout()
+        self.input_layout.setContentsMargins(0, 0, 0, 0)
 
-        layout.addLayout(input_layout)
+        # Input Box
+        self.input_box = QLineEdit()
+        self.input_box.setPlaceholderText("Type your message...")
+        self.input_box.setFont(QFont("Arial", 12))
+        self.input_box.setStyleSheet(
+            """
+            QLineEdit {
+                background-color: rgba(255, 255, 255, 0.9);
+                border: 2px solid #ffffff;
+                border-radius: 10px;
+                padding: 8px;
+                color: #333333;
+            }
+            QLineEdit:focus {
+                border-color: #6a11cb;
+            }
+            """
+        )
+        self.input_layout.addWidget(self.input_box)
 
-        # Output Section
-        output_layout = QVBoxLayout()
-        self.output_label = QLabel("Response:")
-        self.output_label.setFont(QFont("Roboto", 12))
-        output_layout.addWidget(self.output_label)
+        # Send Button
+        self.send_button = QPushButton("Send")
+        self.send_button.setFont(QFont("Arial", 12, QFont.Bold))
+        self.send_button.setStyleSheet(
+            """
+            QPushButton {
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #6a11cb, stop: 1 #2575fc
+                );
+                color: #ffffff;
+                border: none;
+                border-radius: 10px;
+                padding: 8px 15px;
+                margin-left: 5px;
+            }
+            QPushButton:hover {
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 1, y2: 1,
+                    stop: 0 #2575fc, stop: 1 #6a11cb
+                );
+            }
+            QPushButton:pressed {
+                background: #4a00e0;
+            }
+            """
+        )
+        self.send_button.clicked.connect(self.send_message)
+        self.input_layout.addWidget(self.send_button)
 
-        self.output_field = QTextEdit()
-        self.output_field.setReadOnly(True)
-        output_layout.addWidget(self.output_field)
+        # Add Input Layout to Main Layout
+        self.main_layout.addLayout(self.input_layout)
 
-        layout.addLayout(output_layout)
+    def send_message(self):
+        """
+        Handles sending of messages from the user.
+        """
+        user_message = self.input_box.text().strip()
+        if user_message:  # If input is not empty
+            # Display user message
+            self.append_message("You", user_message, QColor("#0078d7"))
 
-        # Button Section
-        button_layout = QHBoxLayout()
-        self.submit_button = QPushButton("Submit")
-        self.submit_button.clicked.connect(self.handle_query)
-        self.submit_button.setFixedHeight(40)
-        button_layout.addStretch()
-        button_layout.addWidget(self.submit_button)
-        button_layout.addStretch()
+            # Clear input
+            self.input_box.clear()
 
-        layout.addLayout(button_layout)
+            # Generate chatbot response
+            bot_response = self.get_bot_response(user_message)
+            self.append_message("🤖", bot_response, QColor("#333333"))
 
-        # Footer
-        footer_label = QLabel("Made with ❤️ using PyQt5 and Dracula Theme")
-        footer_label.setFont(QFont("Roboto", 10))
-        footer_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(footer_label)
+    def append_message(self, sender, message, color):
+        """
+        Appends a styled message to the chat area.
+        """
+        message_html = f"""
+        <div style="text-align: right; margin: 10px 0;">
+            <span style="font-weight: bold; color: {color.name()};">{sender}:</span>
+            <span style="color: #000000;"> {message}</span>
+        </div>
+        """
+        self.chat_area.append(message_html)
 
-        # Apply Layout
-        central_widget.setLayout(layout)
-
-    def handle_query(self):
-        user_query = self.input_field.text()
-        if user_query.strip():
-            response = query_rag_system(user_query)
-            self.output_field.setText(response)
+    def get_bot_response(self, message):
+        """
+        Replace this method with actual chatbot logic or API integration.
+        """
+        if "hello" in message.lower():
+            return "Hi there! How can I assist you today?"
+        elif "bye" in message.lower():
+            return "Goodbye! Have a great day!"
         else:
-            self.output_field.setText("Please enter a query.")
+            return "I'm here to help. Please ask me something!"
 
-def main():
+# Main Execution
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-    # Load the Fancy Dracula Theme
-    with open("src\\UI\\fancy_dracula.qss", "r") as stylesheet:
-        app.setStyleSheet(stylesheet.read())
-
-    window = FancyRAGApp()
+    app.setStyle("Fusion")  # Use a modern style
+    window = ChatBotUI()
     window.show()
     sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    main()
