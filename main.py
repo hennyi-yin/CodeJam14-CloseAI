@@ -10,7 +10,7 @@ user_config = {
 
 def get_bot_response(user_message):
 # Chatbot responds
-    time.sleep(3)
+    time.sleep(1) 
     if user_message.lower() == "hello":
         bot_reply = "**Hi** there! How can I help you?"
     elif user_message.lower() == "bye":
@@ -21,12 +21,19 @@ def get_bot_response(user_message):
     return bot_reply
 
 def main(page: ft.Page):
-    page.title = "Chatbot"
+    page.title = "Maestro"
     page.theme = ft.Theme(color_scheme_seed="#f14eff")
     page.theme_mode = "dark" if user_config.get("dark_mode") else "light"
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.window.min_height = 600
     page.window.min_width = 400
+    page.bgcolor = ft.colors.TRANSPARENT
+    page.decoration = ft.BoxDecoration(
+            image=ft.DecorationImage(
+            src="car1.jpg",
+            fit=ft.ImageFit.COVER,
+            ),)
+
     
     app_body = ft.Column(expand=True)
     
@@ -51,21 +58,34 @@ def main(page: ft.Page):
         bgcolor=ft.colors.ON_PRIMARY
     )
     
-    chat_box = ft.ListView(expand=8)
+    chat_box = ft.ListView(expand=8, auto_scroll=True)
     
     user_input = ft.TextField(
         hint_text="Type your message", 
         autofocus=True, 
         expand=True, 
-        shift_enter=True
+        shift_enter=True,
+        border_radius=20
     )
     send_button = ft.IconButton(
         icon=ft.icons.ARROW_UPWARD, 
         width=40, 
-        disabled=True
+        height=60,
+        disabled=True,
+        bgcolor=ft.colors.SURFACE_VARIANT
     )
+    
+    audio_button = ft.IconButton(
+        icon=ft.icons.MIC, 
+        width=40,
+        height=60,
+        bgcolor=ft.colors.SURFACE_VARIANT
+        # disabled=True,
+    )
+
     input_area = ft.Row(
         controls=[
+            audio_button,
             user_input,
             send_button
         ],
@@ -73,6 +93,8 @@ def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.END,
         expand=1
     )
+    
+    loading_gif = ft.Image(src="loading.gif", width=50, height=20, visible=False)
     
 #    def change_debug(e):
 #        page.show_semantics_debugger = not page.show_semantics_debugger
@@ -85,9 +107,19 @@ def main(page: ft.Page):
         if user_config["dark_mode"]:
             toggle_button.icon = ft.icons.LIGHT_MODE
             page.theme_mode = "dark"
+            page.decoration = ft.BoxDecoration(
+            image=ft.DecorationImage(
+            src="car1.jpg",
+            fit=ft.ImageFit.COVER,
+            ),)
         else:
             toggle_button.icon = ft.icons.DARK_MODE
             page.theme_mode = "light"
+            page.decoration = ft.BoxDecoration(
+            image=ft.DecorationImage(
+            src="car2.jpg",
+            fit=ft.ImageFit.COVER,
+            ),)
         page.update()
         
     toggle_button.on_click = toggle_mode
@@ -133,6 +165,24 @@ def main(page: ft.Page):
             send_button.disabled = False
             
         page.update()
+
+    # def button_click(msg):
+    #     # loading_text = ft.Text("Loading...")
+    #     loading_gif = ft.Image(src="loading.gif", width=50, height=20)
+    #     # page.add(loading_text)
+    #     page.add(loading_gif)
+    #     # page.add(new_message, send_button)
+    #     page.update()
+        
+    #     res = async_test(msg)
+
+    #     page.controls.remove(loading_gif)
+    #     # page.controls.remove(loading_text)
+    #     # page.add(ft.Text("Hello!"))
+    #     # chat.controls.append(ft.Text("Bot response"+ res, text_align=ft.TextAlign.LEFT))
+
+    #     # page.add(new_message, send_button)
+    #     page.update()
         
     def on_send(e):
         user_message = user_input.value
@@ -142,21 +192,23 @@ def main(page: ft.Page):
         user_input.value = ""
         user_input.disabled = True
         send_button.disabled = True
+        loading_gif.visible = True
         page.update()
         
         bot_reply = get_bot_response(user_message)
-        
+
         chat_box.controls.append(
             ChatItem("bot", bot_reply)
         )
         user_input.disabled = False
+        loading_gif.visible = False
         page.update()
     
     user_input.on_change = check_content
     user_input.on_submit = on_send
     send_button.on_click = on_send
     
-    app_body.controls += [chat_box, input_area]
+    app_body.controls += [chat_box,  loading_gif, input_area]
     
     page.appbar = app_bar
     page.add(app_body)

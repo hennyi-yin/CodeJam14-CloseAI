@@ -14,7 +14,7 @@ class ChatItem(ft.Row):
                     bgcolor=ft.colors.SURFACE_VARIANT,
                     alignment=ft.Alignment(x=1, y=0),
                     padding=ft.Padding(top=5, bottom=5, left=10, right=10),
-                    border_radius=12,
+                    border_radius=22,
                     expand_loose=True
                 ),
                 ft.CircleAvatar(

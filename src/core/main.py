@@ -7,8 +7,8 @@ def main():
 
     print("Chatbot ready! Ask me anything about our cars.")
     while True:
-        #query = input("Customer: ")
-        query = real_time_speech_to_text()
+        query = input("Customer: ")
+        # query = real_time_speech_to_text()
         print(f'Customer: {query}')
         if query.lower() in ["exit", "quit"]:
             print("Goodbye!")
