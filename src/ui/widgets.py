@@ -19,8 +19,9 @@ class ChatItem(ft.Row):
                 ),
                 ft.CircleAvatar(
                     content=ft.Image(
-                        src="s1-1.png"
-                    )
+                        src="hatsune-miku-dance.gif"
+                    ),
+                    bgcolor=ft.colors.TRANSPARENT
                 )
             ]
             self.alignment = ft.MainAxisAlignment.END
@@ -29,8 +30,9 @@ class ChatItem(ft.Row):
             self.controls = [
                 ft.CircleAvatar(
                     content=ft.Image(
-                        src="s4-4.png"
-                    )
+                        src="matador.png"
+                    ),
+                    bgcolor=ft.colors.TRANSPARENT
                 ),
                 ft.Container(
                     content=ft.Markdown(message, selectable=True, md_style_sheet=mks), 
