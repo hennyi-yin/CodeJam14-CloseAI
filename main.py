@@ -1,24 +1,12 @@
 import flet as ft
 from flet_contrib.color_picker import ColorPicker
-import time
 
 from src.ui.widgets import ChatItem
+from src.core.chat import get_bot_response
 
 user_config = {
     "dark_mode": True
 }
-
-def get_bot_response(user_message):
-# Chatbot responds
-    time.sleep(1) 
-    if user_message.lower() == "hello":
-        bot_reply = "**Hi** there! How can I help you?"
-    elif user_message.lower() == "bye":
-        bot_reply = "**Goodbye!** Have a great day!"
-    else:
-        bot_reply = "I'm here to **chat**. Ask me anything!"
-        
-    return bot_reply
 
 def main(page: ft.Page):
     page.title = "Maestro"
@@ -27,12 +15,6 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.START
     page.window.min_height = 600
     page.window.min_width = 400
-    page.bgcolor = ft.colors.TRANSPARENT
-    page.decoration = ft.BoxDecoration(
-            image=ft.DecorationImage(
-            src="car1.jpg",
-            fit=ft.ImageFit.COVER,
-            ),)
 
     
     app_body = ft.Column(expand=True)
@@ -48,7 +30,7 @@ def main(page: ft.Page):
     )
 
     app_bar = ft.AppBar(
-        title=ft.Text("Chatbot"),
+        title=ft.Text("Maestro"),
         center_title=True,
         actions=[
             palette_button,
@@ -107,19 +89,9 @@ def main(page: ft.Page):
         if user_config["dark_mode"]:
             toggle_button.icon = ft.icons.LIGHT_MODE
             page.theme_mode = "dark"
-            page.decoration = ft.BoxDecoration(
-            image=ft.DecorationImage(
-            src="car1.jpg",
-            fit=ft.ImageFit.COVER,
-            ),)
         else:
             toggle_button.icon = ft.icons.DARK_MODE
             page.theme_mode = "light"
-            page.decoration = ft.BoxDecoration(
-            image=ft.DecorationImage(
-            src="car2.jpg",
-            fit=ft.ImageFit.COVER,
-            ),)
         page.update()
         
     toggle_button.on_click = toggle_mode
